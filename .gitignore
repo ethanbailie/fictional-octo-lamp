@@ -3,3 +3,4 @@ trained_agents_data.pkl
 .env
 full_json.txt
 generated.py
+/__pycache__
