@@ -7,16 +7,18 @@ import json
 
 load_dotenv()
 
+## set the llm for the agents
+llm = ChatOpenAI(
+        model="gpt-4o-mini",
+        temperature=0
+    )
+
 ## tools
 @tool('code generator')
 def code_generator(goal: str) -> str:
     """
     Generates code for a given goal and outputs a JSON string
     """
-    llm = ChatOpenAI(
-        model='gpt-4o-mini',
-        temperature=0
-    )
 
     messages = [
         (
@@ -51,10 +53,6 @@ def code_validator(obj: str) -> str:
     """
     validates code within a given string containing a json object
     """
-    llm = ChatOpenAI(
-        model='gpt-4o-mini',
-        temperature=0
-    )
 
     messages = [
         (
@@ -103,6 +101,7 @@ generation_agent = Agent(
     goal='Generate a valid Python script and output it as a JSON string',
     backstory=('You are a senior software engineer entrusted with creating a '
                'critical script for your company.'),
+    llm=llm,
     memory=True,
     verbose=True,
     tools=[code_generator]
@@ -113,6 +112,7 @@ validation_agent = Agent(
     goal='Validate a JSON string to ensure it is in proper format, and validate the code within and output it as a JSON string',
     backstory=('You are a senior QA engineer entrusted with validating a '
                'critical script for your company.'),
+    llm=llm,
     memory=True,
     verbose=True,
     tools=[code_validator, json_validator]
@@ -144,9 +144,6 @@ crew = Crew(
 
 ## all together
 results = crew.kickoff(inputs={'goal': input('Enter your goal here: ')})
-
-# check output format
-results = results.split('\n', 1)[-1].rsplit('\n', 1)[0]
 
 print(results)
 print('\n')
