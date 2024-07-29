@@ -20,22 +20,13 @@ assessment_agent = Agent(
     goal='Assess the given goal to see if it requires additional context',
     backstory=('You are a senior manager who is experienced with a plethora of requests. '
                'You need to assess if the current goal is able to be completed without any '
-               'additional documentation. If an additional document is needed, you must '
-               'embed it for future context.'),
+               'additional documentation. If an additional document is needed, you '
+               'must attempt to retrieve it. If the retrieved results are not good enough, '
+               'you must get the user to provide a pdf which you will then embed and retrieve.'),
     llm=llm,
     memory=True,
     verbose=True,
-    tools=[assessment, embed_pdf]
-)
-
-retrieval_agent = Agent(
-    role='Information Retriever',
-    goal='When a goal is too niche to achieve with general knowledge, you must find the information needed and retrieve it.',
-    backstory=('There is a task that cannot be completed without the retrieval of more information. '
-               'You must find the information needed and retrieve it so the goal may be completed. '),
-    memory=True,
-    verbose=True,
-    tools=[retriever]
+    tools=[assessment, retriever, embed_pdf]
 )
 
 generation_agent = Agent(
@@ -62,17 +53,10 @@ validation_agent = Agent(
 
 ## tasks
 assessment_task = Task(
-    description='Assesses if more context is needed to achieve {goal} and prompt to add more context if so',
+    description='Assesses if more context is needed to achieve {goal} and retrieve it if so. If the retrieved information is not enough, prompt to add more context',
     expected_output='A string either of more context or that no additional context is necessary',
-    Agent=assessment_agent,
-    tools=[assessment, embed_pdf]
-)
-
-retrieval_task = Task(
-    description='If more context was needed to complete {goal}, then retrieve that information from the database',
-    expected_output='A string either of additional context',
-    Agent=retrieval_agent,
-    tools=[retriever]
+    agent=assessment_agent,
+    tools=[assessment, retriever, embed_pdf]
 )
 
 generation_task = Task(
@@ -91,8 +75,8 @@ validation_task = Task(
 
 ## crew
 crew = Crew(
-    agents=[generation_agent, validation_agent, assessment_agent, retrieval_agent],
-    tasks=[generation_task, validation_task, assessment_task, retrieval_task],
+    agents=[generation_agent, validation_agent, assessment_agent],
+    tasks=[assessment_task, generation_task, validation_task],
     verbose=False
 )
 
