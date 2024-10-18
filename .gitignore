@@ -4,3 +4,4 @@ trained_agents_data.pkl
 full_json.txt
 generated.py
 /__pycache__
+/.venv
