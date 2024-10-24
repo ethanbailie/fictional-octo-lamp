@@ -2,13 +2,13 @@ from crewai_tools import tool
 from langchain_openai import ChatOpenAI
 from langchain_cohere import CohereEmbeddings
 from pinecone import Pinecone, ServerlessSpec
-from pdfminer.high_level import extract_text
 from pathlib import Path
+from vlm_ocr import openai_read
 import json
 
 ## helper functions
 def read_pdf(file_path):
-    text = extract_text(file_path)
+    text = openai_read(file_path)
     return text
 
 def chunker(text, chunk_size=512):

@@ -5,3 +5,4 @@ full_json.txt
 generated.py
 /__pycache__
 /.venv
+*.pdf
